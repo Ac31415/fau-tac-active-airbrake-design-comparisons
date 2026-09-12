@@ -19,10 +19,10 @@ sim_params.g0         = 9.80665; % Standard gravity at sea level (m/s^2)
 sim_params.R_earth    = 6371000; % Mean Earth radius (m)
 
 % Launch Rail / Pad Configuration
-sim_params.rail_length = 3.65;    % Launch rail length (m) ~ 12 ft
-sim_params.rail_angle  = 86.0;    % Launch elevation angle (deg) from horizontal
+sim_params.rail_length = 1.00;    % Launch rail length (m) ~ 12 ft
+sim_params.rail_angle  = 90.0;    % Launch elevation angle (deg) from horizontal
 sim_params.rail_azimuth = 90.0;   % Launch azimuth (deg, 90 = East)
-sim_params.altitude_pad = 100.0;  % Launch site elevation MSL (m)
+sim_params.altitude_pad = 0.0;  % Launch site elevation MSL (m)
 
 % Atmospheric & Wind Settings
 sim_params.T0_sl       = 288.15;  % Sea level temperature (K)
