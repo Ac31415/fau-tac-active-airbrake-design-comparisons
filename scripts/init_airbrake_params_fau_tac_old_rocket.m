@@ -99,16 +99,9 @@ rocket.Izz_dry      = 2.95;                % Yaw inertia dry
 % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
 rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
 rocket.t_burn       = 3.85;                % Motor burn duration (s)
-rocket.thrust_peak  = 1680.0;              % Peak thrust (N)
-rocket.thrust_avg   = 1240.0;              % Average thrust (N)
-rocket.total_impulse= 3968.0;              % Total impulse (N*s)
-
-% % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
-% rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
-% rocket.t_burn       = 3.85;                % Motor burn duration (s)
-% rocket.thrust_peak  = 3710.9;              % Peak thrust (N)
-% rocket.thrust_avg   = 2500.0;              % Average thrust (N)
-% rocket.total_impulse= 9671.0;              % Total impulse (N*s)
+rocket.thrust_peak  = 3710.9;              % Peak thrust (N)
+rocket.thrust_avg   = 2500.0;              % Average thrust (N)
+rocket.total_impulse= 9671.0;              % Total impulse (N*s)
 
 % Realistic 2-stage thrust profile (ignition spike -> plateau -> tail-off)
 t_prof = [0.0, 0.15, 0.40, 2.70, 3.05, 3.20];
