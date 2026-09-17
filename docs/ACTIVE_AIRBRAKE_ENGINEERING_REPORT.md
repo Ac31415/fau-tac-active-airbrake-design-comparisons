@@ -29,8 +29,8 @@ Both a **standalone 6-DOF MATLAB simulation engine** and a **native MATLAB Simul
 ## 2. 3D 6-Degrees-of-Freedom (6-DOF) Dynamics Formulation
 
 ### 2.1 State Vector & Reference Frames
-The vehicle state vector $\mathbf{x} \in \mathbb{R}^{13}$ is defined in the Earth-Centered North-East-Down (NED) frame and Rocket Body frameas follows:
-- $$\mathbf{x} = \begin{bmatrix} \mathbf{r}_{NED}^T & \mathbf{V}_b^T & \mathbf{q}^T & \boldsymbol{\omega}_b^T \end{bmatrix}^T$$
+The vehicle state vector $\mathbf{x} \in \mathbb{R}^{13}$ is defined in the Earth-Centered North-East-Down (NED) frame and Rocket Body frame:
+$$\mathbf{x} = \begin{bmatrix} \mathbf{r}_{NED}^T & \mathbf{V}_b^T & \mathbf{q}^T & \boldsymbol{\omega}_b^T \end{bmatrix}^T$$
 - $\mathbf{r}_{NED} = [X_N, Y_E, Z_D]^T$: Position in NED frame. Altitude MSL is $h = -Z_D$.
 - $\mathbf{V}_b = [u, v, w]^T$: Linear velocity in Rocket Body frame (axial $u$, right lateral $v$, normal down $w$).
 - $\mathbf{q} = [q_0, q_1, q_2, q_3]^T$: Unit quaternion representing orientation from NED to Body frame ($\|\mathbf{q}\| = 1$).
@@ -38,29 +38,29 @@ The vehicle state vector $\mathbf{x} \in \mathbb{R}^{13}$ is defined in the Eart
 
 ### 2.2 Direction Cosine Matrix (DCM)
 The rotation matrix $\mathbf{C}_{b/e}$ mapping vectors from NED to Body is:
-$\mathbf{C}_{b/e} = \begin{bmatrix}
+$$\mathbf{C}_{b/e} = \begin{bmatrix}
 q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1 q_2 + q_0 q_3) & 2(q_1 q_3 - q_0 q_2) \\
 2(q_1 q_2 - q_0 q_3) & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2 q_3 + q_0 q_1) \\
 2(q_1 q_3 + q_0 q_2) & 2(q_2 q_3 - q_0 q_1) & q_0^2 - q_1^2 - q_2^2 + q_3^2
-\end{bmatrix}$
+\end{bmatrix}$$
 The inertial velocity is $\mathbf{V}_{NED} = \mathbf{C}_{b/e}^T \mathbf{V}_b$.
 
 ### 2.3 Equations of Motion
 1. **Kinematics (Position Rate)**:
-   $\dot{\mathbf{r}}_{NED} = \mathbf{C}_{b/e}^T \mathbf{V}_b$
+   $$\dot{\mathbf{r}}_{NED} = \mathbf{C}_{b/e}^T \mathbf{V}_b$$
 2. **Attitude Kinematics (Quaternion Rate)**:
-   $\dot{\mathbf{q}} = \frac{1}{2} \boldsymbol{\Omega}_b \mathbf{q} = \frac{1}{2} \begin{bmatrix}
+   $$\dot{\mathbf{q}} = \frac{1}{2} \boldsymbol{\Omega}_b \mathbf{q} = \frac{1}{2} \begin{bmatrix}
    0 & -p & -q & -r \\
    p & 0 & r & -q \\
    q & -r & 0 & p \\
    r & q & -p & 0
-   \end{bmatrix} \begin{bmatrix} q_0 \\ q_1 \\ q_2 \\ q_3 \end{bmatrix}$
+   \end{bmatrix} \begin{bmatrix} q_0 \\ q_1 \\ q_2 \\ q_3 \end{bmatrix}$$
 3. **Translational Dynamics (Newton-Euler)**:
-   $m(t) \left( \dot{\mathbf{V}}_b + \boldsymbol{\omega}_b \times \mathbf{V}_b \right) = \mathbf{F}_{aero,b} + \mathbf{F}_{thrust,b} + \mathbf{F}_{grav,b}$
-   $\dot{\mathbf{V}}_b = \frac{1}{m(t)} \left( \mathbf{F}_{aero,b} + \mathbf{F}_{thrust,b} + \mathbf{C}_{b/e} \begin{bmatrix} 0 \\ 0 \\ m(t) g_0 \end{bmatrix} \right) - \boldsymbol{\omega}_b \times \mathbf{V}_b$
+   $$m(t) \left( \dot{\mathbf{V}}_b + \boldsymbol{\omega}_b \times \mathbf{V}_b \right) = \mathbf{F}_{aero,b} + \mathbf{F}_{thrust,b} + \mathbf{F}_{grav,b}$$
+   $$\dot{\mathbf{V}}_b = \frac{1}{m(t)} \left( \mathbf{F}_{aero,b} + \mathbf{F}_{thrust,b} + \mathbf{C}_{b/e} \begin{bmatrix} 0 \\ 0 \\ m(t) g_0 \end{bmatrix} \right) - \boldsymbol{\omega}_b \times \mathbf{V}_b$$
 4. **Rotational Dynamics**:
-   $\mathbf{I}(t) \dot{\boldsymbol{\omega}}_b + \boldsymbol{\omega}_b \times (\mathbf{I}(t) \boldsymbol{\omega}_b) = \mathbf{M}_{aero,b}$
-   $\dot{\boldsymbol{\omega}}_b = \mathbf{I}(t)^{-1} \left( \mathbf{M}_{aero,b} - \boldsymbol{\omega}_b \times (\mathbf{I}(t) \boldsymbol{\omega}_b) \right)$
+   $$\mathbf{I}(t) \dot{\boldsymbol{\omega}}_b + \boldsymbol{\omega}_b \times (\mathbf{I}(t) \boldsymbol{\omega}_b) = \mathbf{M}_{aero,b}$$
+   $$\dot{\boldsymbol{\omega}}_b = \mathbf{I}(t)^{-1} \left( \mathbf{M}_{aero,b} - \boldsymbol{\omega}_b \times (\mathbf{I}(t) \boldsymbol{\omega}_b) \right)$$
 
 ---
 
@@ -70,27 +70,27 @@ The inertial velocity is $\mathbf{V}_{NED} = \mathbf{C}_{b/e}^T \mathbf{V}_b$.
 - **Geometry**: 4 rectangular flaps hinged at their forward edge: width $W = 38\,\text{mm}$, length $L = 60\,\text{mm}$.
 - **Deployment Angle**: $\theta \in [0^\circ, 90^\circ]$ ($0\,\text{rad}$ flush to $\pi/2\,\text{rad}$ normal).
 - **Projected Area**:
-  $A_{proj}(\theta) = 4 \cdot W \cdot L \cdot \sin(\theta)$
+  $$A_{proj}(\theta) = 4 \cdot W \cdot L \cdot \sin(\theta)$$
 - **Drag Increment**: Flow separation behind a hinged flap varies with $\sin^2(\theta)$:
-  $\Delta C_D(\theta) = C_{D,flap,90} \sin^2(\theta) \frac{A_{proj}(\theta)}{A_{ref}} = C_{D,flap,90} \frac{4 W L}{A_{ref}} \sin^3(\theta)$
+  $$\Delta C_D(\theta) = C_{D,flap,90} \sin^2(\theta) \frac{A_{proj}(\theta)}{A_{ref}} = C_{D,flap,90} \frac{4 W L}{A_{ref}} \sin^3(\theta)$$
 - **Aerodynamic Normal Load on Flap**:
-  $F_{norm}(\theta) = q_\infty \cdot C_{D,flap,90} \sin(\theta) \cdot (W L)$
+  $$F_{norm}(\theta) = q_\infty \cdot C_{D,flap,90} \sin(\theta) \cdot (W L)$$
 - **Hinge Torque**: The flap center of pressure is located at $r_{cp} \approx 0.45 L$ from the hinge axis.
-  $\tau_{hinge}(\theta) = F_{norm}(\theta) \cdot r_{cp} \sin(\theta)$
+  $$\tau_{hinge}(\theta) = F_{norm}(\theta) \cdot r_{cp} \sin(\theta)$$
   The total torque demanded from the central digital servo through a mechanical linkage with advantage $\eta_{link} = 1.25$ is:
-  $\tau_{servo,load} = \frac{4 \cdot \tau_{hinge}(\theta)}{\eta_{link}}$
+  $$\tau_{servo,load} = \frac{4 \cdot \tau_{hinge}(\theta)}{\eta_{link}}$$
 
 ### 3.2 Design 2: Radially Outward Sliding Flaps
 - **Geometry**: 4 rectangular plates fixed permanently at $90^\circ$ to the body, extending radially through slots: width $W = 38\,\text{mm}$, max stroke $s_{max} = 35\,\text{mm}$.
 - **Deployment Stroke**: $s \in [0, s_{max}]$.
 - **Projected Area**: Purely linear with extension stroke:
-  $A_{proj}(s) = 4 \cdot W \cdot s$
+  $$A_{proj}(s) = 4 \cdot W \cdot s$$
 - **Drag Increment**: Flat plate at $90^\circ$ normal to oncoming flow ($C_{D,plate} = 1.28$):
-  $\Delta C_D(s) = C_{D,plate} \frac{4 W s}{A_{ref}}$
+  $$\Delta C_D(s) = C_{D,plate} \frac{4 W s}{A_{ref}}$$
 - **Aero Normal Force & Rail Friction**: Because the flap is at $90^\circ$ to the flow, dynamic pressure generates a large aerodynamic drag force normal to the guide rails:
-  $F_{normal}(s) = q_\infty \cdot C_{D,plate} \cdot (W s)$
+  $$F_{normal}(s) = q_\infty \cdot C_{D,plate} \cdot (W s)$$
   This normal load pushes the flap against its guide bushings/rails with friction coefficient $\mu_{rail} \approx 0.20$ and seal preload $F_{preload} = 2.0\,\text{N}$:
-  $F_{rail,friction} = 4 \cdot (\mu_{rail} F_{normal} + F_{preload})$
+  $$F_{rail,friction} = 4 \cdot (\mu_{rail} F_{normal} + F_{preload})$$
   The linear actuator must generate an axial force $F_{actuator} > F_{rail,friction}$ to extend or retract the flaps!
 
 ---
