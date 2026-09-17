@@ -84,25 +84,25 @@ rocket.thrust_avg   = 4.81;              % Average thrust (N)
 rocket.total_impulse= 8.82;              % Total impulse (N*s)
 
 % Realistic 2-stage thrust profile (ignition spike -> plateau -> tail-off)
-t_prof = [0.0, 0.15, 0.40, 2.70, 3.05, 3.20];
-T_prof = [0.0, 1680.0, 1380.0, 1260.0, 480.0, 0.0];
+t_prof = [0.0, 0.19, 0.40, 1.83, 1.96, 2.11];
+T_prof = [0.0, 14.1, 4.35, 0.0, 0.0, 0.0];
 rocket.thrust_lut_t = t_prof;
 rocket.thrust_lut_T = T_prof;
 
 % Clean Rocket Aerodynamic Coefficients
-rocket.CD0_clean    = 0.38;                % Zero-lift subsonic drag coefficient
-rocket.CNa          = 5.80;                % Normal force coefficient slope (1/rad)
-rocket.CYb          = -5.80;               % Side force coefficient slope (1/rad)
-rocket.Cma          = -14.2;               % Pitching moment coefficient slope (1/rad)
-rocket.Cnb          = 14.2;                % Yawing moment coefficient slope (1/rad)
-rocket.Clp          = -0.75;               % Roll damping coefficient (1/rad)
-rocket.Cmq          = -26.0;               % Pitch damping coefficient (1/rad)
-rocket.Cnr          = -26.0;               % Yaw damping coefficient (1/rad)
+rocket.CD0_clean    = 1.2e-1;                % Zero-lift subsonic drag coefficient
+rocket.CNa          = 1.911;                % Normal force coefficient slope (1/rad)
+rocket.CYb          = 0;               % Side force coefficient slope (1/rad)
+rocket.Cma          = 4.25;               % Pitching moment coefficient slope (1/rad)
+rocket.Cnb          = -2.38e-4;                % Yawing moment coefficient slope (1/rad)
+rocket.Clp          = 0;               % Roll damping coefficient (1/rad)
+rocket.Cmq          = 0;               % Pitch damping coefficient (1/rad)
+rocket.Cnr          = 0;               % Yaw damping coefficient (1/rad) % not shown in openrockets, assuming 0
 
 %% 3. Airbrake Mechanism Designs (Comparison Targets)
 % Both designs are positioned near the CG/midbody (x_brakes = 1.30 m from nose tip)
 airbrakes = struct();
-airbrakes.x_mount    = 1.30;               % Axial location of airbrake unit (m)
+airbrakes.x_mount    = 0.423;               % Axial location of airbrake unit (m), assuming near the bottom of rocket
 airbrakes.num_flaps  = 4;                  % 4 flaps arranged symmetrically at 90-deg intervals
 
 % --- DESIGN 1: Downward-Opening Pivoting Flaps (Variable Angle 0 -> 90 deg) ---

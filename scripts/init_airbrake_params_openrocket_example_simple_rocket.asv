@@ -102,7 +102,7 @@ rocket.Cnr          = 0;               % Yaw damping coefficient (1/rad) % not s
 %% 3. Airbrake Mechanism Designs (Comparison Targets)
 % Both designs are positioned near the CG/midbody (x_brakes = 1.30 m from nose tip)
 airbrakes = struct();
-airbrakes.x_mount    = 0.423;               % Axial location of airbrake unit (m), assuming near the bottom of rocket
+airbrakes.x_mount    = 1.30;               % Axial location of airbrake unit (m)
 airbrakes.num_flaps  = 4;                  % 4 flaps arranged symmetrically at 90-deg intervals
 
 % --- DESIGN 1: Downward-Opening Pivoting Flaps (Variable Angle 0 -> 90 deg) ---

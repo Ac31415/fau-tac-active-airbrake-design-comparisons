@@ -12,17 +12,18 @@ fprintf('==> Initializing 6-DOF Active Airbrake Simulation Parameters...\n');
 %% 1. Simulation & Environment Settings
 sim_params = struct();
 sim_params.t_start    = 0.0;     % Start time (s)
-sim_params.t_max      = 1200.0;    % Max simulation time (s)
+sim_params.t_max      = 40.0;    % Max simulation time (s)
+% sim_params.t_max      = 1200.0;    % Max simulation time (s)
 sim_params.dt         = 0.002;   % Continuous plant integration step (s) - 500 Hz
 sim_params.dt_fsw     = 0.020;   % Flight software sample time (s) - 50 Hz
 sim_params.g0         = 9.80665; % Standard gravity at sea level (m/s^2)
 sim_params.R_earth    = 6371000; % Mean Earth radius (m)
 
 % Launch Rail / Pad Configuration
-sim_params.rail_length = 1.00;    % Launch rail length (m) ~ 12 ft
-sim_params.rail_angle  = 90.0;    % Launch elevation angle (deg) from horizontal
+sim_params.rail_length = 3.65;    % Launch rail length (m) ~ 12 ft
+sim_params.rail_angle  = 86.0;    % Launch elevation angle (deg) from horizontal
 sim_params.rail_azimuth = 90.0;   % Launch azimuth (deg, 90 = East)
-sim_params.altitude_pad = 0.0;  % Launch site elevation MSL (m)
+sim_params.altitude_pad = 100.0;  % Launch site elevation MSL (m)
 
 % Atmospheric & Wind Settings
 sim_params.T0_sl       = 288.15;  % Sea level temperature (K)
@@ -33,8 +34,10 @@ sim_params.R_gas       = 287.05;  % Specific gas constant (J/kg*K)
 sim_params.L_lapse     = 0.0065;  % Temperature lapse rate (K/m)
 
 % Ambient Wind Field (3D: North, East, Down)
+% sim_params.wind_base_speed = 4.5; % Ground wind speed (m/s)
 sim_params.wind_base_speed = 2.0; % Ground wind speed (m/s)
-sim_params.wind_azimuth    = 90; % Direction wind is coming FROM (deg, 270 = from West to East)
+sim_params.wind_azimuth    = 270; % Direction wind is coming FROM (deg, 270 = from West to East)
+% sim_params.wind_azimuth    = 90; % Direction wind is coming FROM (deg, 270 = from West to East)
 % check the params below later for wind field model
 sim_params.wind_shear_exp  = 0.14;% Power-law boundary layer shear exponent
 sim_params.gust_amplitude  = 2.5; % Gust magnitude (m/s)
@@ -43,20 +46,28 @@ sim_params.gust_frequency  = 0.3; % Gust frequency (Hz)
 %% 2. Rocket Airframe Physical Parameters
 rocket = struct();
 rocket.name         = 'AeroStrike-100 Active Control Sounding Rocket';
-rocket.diameter     = 0.025;               % Body diameter (m) ~ 4.0 inches
-rocket.length       = 0.425;                % Total rocket length (m)
+rocket.diameter     = 0.102;               % Body diameter (m) ~ 4.0 inches
+% rocket.diameter     = 0.025;               % Body diameter (m) ~ 4.0 inches
+rocket.length       = 2.45;                % Total rocket length (m)
+% rocket.length       = 0.425;                % Total rocket length (m)
 rocket.A_ref        = (pi/4)*rocket.diameter^2; % Reference cross-sectional area (m^2)
 rocket.L_ref        = rocket.diameter;     % Reference length for moment coeffs (m)
 
 % Masses & Mass Depletion
-rocket.m_dry        = 0.0482;                % Dry mass without motor propellant (kg)
-rocket.m_prop       = 0.0231;                % Propellant mass (kg)
-rocket.m_liftoff    = rocket.m_dry + rocket.m_prop; % Total liftoff mass (kg) = 0.0713 kg
+rocket.m_dry        = 8.20;                % Dry mass without motor propellant (kg)
+rocket.m_prop       = 1.95;                % Propellant mass (kg)
+% rocket.m_dry        = 0.0482;                % Dry mass without motor propellant (kg)
+% rocket.m_prop       = 0.0231;                % Propellant mass (kg)
+rocket.m_liftoff    = rocket.m_dry + rocket.m_prop; % Total liftoff mass (kg) = 10.15 kg
+% rocket.m_liftoff    = rocket.m_dry + rocket.m_prop; % Total liftoff mass (kg) = 0.0713 kg
 
 % Center of Gravity & Center of Pressure (measured from nose tip)
-rocket.x_CG_wet     = 0.248;                % Initial CG from nose tip (m)
-rocket.x_CG_dry     = 0.241;                % Final dry CG from nose tip (m)
-rocket.x_CP         = 0.30;                % Center of pressure from nose tip (m)
+rocket.x_CG_wet     = 1.58;                % Initial CG from nose tip (m)
+% rocket.x_CG_wet     = 0.248;                % Initial CG from nose tip (m)
+rocket.x_CG_dry     = 1.42;                % Final dry CG from nose tip (m)
+% rocket.x_CG_dry     = 0.241;                % Final dry CG from nose tip (m)
+rocket.x_CP         = 1.88;                % Center of pressure from nose tip (m)
+% rocket.x_CP         = 0.30;                % Center of pressure from nose tip (m)
 rocket.static_margin_wet = (rocket.x_CP - rocket.x_CG_wet) / rocket.diameter; % ~2.94 calibers
 rocket.static_margin_dry = (rocket.x_CP - rocket.x_CG_dry) / rocket.diameter; % ~4.51 calibers
 
@@ -68,41 +79,57 @@ rocket.cyy_dry      = 1.08e-4;             % Pitch moment coeff dry
 rocket.czz_wet      = -2.38e-4;            % Yaw moment coeff wet
 rocket.czz_dry      = 3.66e-4;             % Yaw moment coeff dry
 
+
 % Moments of Inertia [kg*m^2]
-rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
-rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
-rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
-rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
-rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
-rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
+rocket.Ixx_wet      = 0.022;               % Roll inertia wet
+rocket.Ixx_dry      = 0.019;               % Roll inertia dry
+rocket.Iyy_wet      = 3.85;                % Pitch inertia wet
+rocket.Iyy_dry      = 2.95;                % Pitch inertia dry
+rocket.Izz_wet      = 3.85;                % Yaw inertia wet
+rocket.Izz_dry      = 2.95;                % Yaw inertia dry
+
+% % Moments of Inertia [kg*m^2]
+% rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
+% rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
+% rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
+% rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
+% rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
+% rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
 
 % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
 rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
-rocket.t_burn       = 1.83;                % Motor burn duration (s)
-rocket.thrust_peak  = 14.1;              % Peak thrust (N)
-rocket.thrust_avg   = 4.81;              % Average thrust (N)
-rocket.total_impulse= 8.82;              % Total impulse (N*s)
+rocket.t_burn       = 3.85;                % Motor burn duration (s)
+rocket.thrust_peak  = 1680.0;              % Peak thrust (N)
+rocket.thrust_avg   = 1240.0;              % Average thrust (N)
+rocket.total_impulse= 3968.0;              % Total impulse (N*s)
+
+% % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
+% rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
+% rocket.t_burn       = 3.85;                % Motor burn duration (s)
+% rocket.thrust_peak  = 3710.9;              % Peak thrust (N)
+% rocket.thrust_avg   = 2500.0;              % Average thrust (N)
+% rocket.total_impulse= 9671.0;              % Total impulse (N*s)
 
 % Realistic 2-stage thrust profile (ignition spike -> plateau -> tail-off)
-t_prof = [0.0, 0.19, 0.40, 1.83, 1.96, 2.11];
-T_prof = [0.0, 14.1, 4.35, 0.0, 0.0, 0.0];
+t_prof = [0.0, 0.15, 0.40, 2.70, 3.05, 3.20];
+T_prof = [0.0, 1680.0, 1380.0, 1260.0, 480.0, 0.0];
 rocket.thrust_lut_t = t_prof;
 rocket.thrust_lut_T = T_prof;
 
 % Clean Rocket Aerodynamic Coefficients
-rocket.CD0_clean    = 1.2e-1;                % Zero-lift subsonic drag coefficient
-rocket.CNa          = 1.911;                % Normal force coefficient slope (1/rad)
-rocket.CYb          = 0;               % Side force coefficient slope (1/rad)
-rocket.Cma          = 4.25;               % Pitching moment coefficient slope (1/rad)
-rocket.Cnb          = -2.38e-4;                % Yawing moment coefficient slope (1/rad)
-rocket.Clp          = 0;               % Roll damping coefficient (1/rad)
-rocket.Cmq          = 0;               % Pitch damping coefficient (1/rad)
-rocket.Cnr          = 0;               % Yaw damping coefficient (1/rad) % not shown in openrockets, assuming 0
+rocket.CD0_clean    = 0.38;                % Zero-lift subsonic drag coefficient
+rocket.CNa          = 5.80;                % Normal force coefficient slope (1/rad)
+rocket.CYb          = -5.80;               % Side force coefficient slope (1/rad)
+rocket.Cma          = -14.2;               % Pitching moment coefficient slope (1/rad)
+rocket.Cnb          = 14.2;                % Yawing moment coefficient slope (1/rad)
+rocket.Clp          = -0.75;               % Roll damping coefficient (1/rad)
+rocket.Cmq          = -26.0;               % Pitch damping coefficient (1/rad)
+rocket.Cnr          = -26.0;               % Yaw damping coefficient (1/rad)
 
 %% 3. Airbrake Mechanism Designs (Comparison Targets)
 % Both designs are positioned near the CG/midbody (x_brakes = 1.30 m from nose tip)
 airbrakes = struct();
-airbrakes.x_mount    = 0.423;               % Axial location of airbrake unit (m), assuming near the bottom of rocket
+airbrakes.x_mount    = 1.30;               % Axial location of airbrake unit (m)
 airbrakes.num_flaps  = 4;                  % 4 flaps arranged symmetrically at 90-deg intervals
 
 % --- DESIGN 1: Downward-Opening Pivoting Flaps (Variable Angle 0 -> 90 deg) ---
