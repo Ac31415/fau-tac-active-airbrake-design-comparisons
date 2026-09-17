@@ -12,7 +12,7 @@ fprintf('==> Initializing 6-DOF Active Airbrake Simulation Parameters...\n');
 %% 1. Simulation & Environment Settings
 sim_params = struct();
 sim_params.t_start    = 0.0;     % Start time (s)
-sim_params.t_max      = 1200.0;    % Max simulation time (s)
+sim_params.t_max      = 20;    % Max simulation time (s)
 sim_params.dt         = 0.002;   % Continuous plant integration step (s) - 500 Hz
 sim_params.dt_fsw     = 0.020;   % Flight software sample time (s) - 50 Hz
 sim_params.g0         = 9.80665; % Standard gravity at sea level (m/s^2)
@@ -60,32 +60,40 @@ rocket.x_CP         = 0.30;                % Center of pressure from nose tip (m
 rocket.static_margin_wet = (rocket.x_CP - rocket.x_CG_wet) / rocket.diameter; % ~2.94 calibers
 rocket.static_margin_dry = (rocket.x_CP - rocket.x_CG_dry) / rocket.diameter; % ~4.51 calibers
 
-% Moment coefficients
-rocket.cxx_wet      = 0;                   % Roll moment coeff wet
-rocket.cxx_dry      = 0;                   % Roll moment coeff dry
-rocket.cyy_wet      = 3.34e-4;             % Pitch moment coeff wet
-rocket.cyy_dry      = 1.08e-4;             % Pitch moment coeff dry
-rocket.czz_wet      = -2.38e-4;            % Yaw moment coeff wet
-rocket.czz_dry      = 3.66e-4;             % Yaw moment coeff dry
+% % Moment coefficients
+% rocket.cxx_wet      = 0;                   % Roll moment coeff wet
+% rocket.cxx_dry      = 0;                   % Roll moment coeff dry
+% rocket.cyy_wet      = 3.34e-4;             % Pitch moment coeff wet
+% rocket.cyy_dry      = 1.08e-4;             % Pitch moment coeff dry
+% rocket.czz_wet      = -2.38e-4;            % Yaw moment coeff wet
+% rocket.czz_dry      = 3.66e-4;             % Yaw moment coeff dry
+% 
+% % Moments of Inertia [kg*m^2]
+% rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
+% rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
+% rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
+% rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
+% rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
+% rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
 
 % Moments of Inertia [kg*m^2]
-rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
-rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
-rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
-rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
-rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
-rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
+rocket.Ixx_wet      = 1e-3;               % Roll inertia wet
+rocket.Ixx_dry      = 9.66e-4;               % Roll inertia dry
+rocket.Iyy_wet      = 1e-3;                % Pitch inertia wet
+rocket.Iyy_dry      = 9.66e-4;                % Pitch inertia dry
+rocket.Izz_wet      = 1e-3;                % Yaw inertia wet
+rocket.Izz_dry      = 9.66e-4;                % Yaw inertia dry
 
 % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
 rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
-rocket.t_burn       = 1.83;                % Motor burn duration (s)
-rocket.thrust_peak  = 14.1;              % Peak thrust (N)
-rocket.thrust_avg   = 4.81;              % Average thrust (N)
-rocket.total_impulse= 8.82;              % Total impulse (N*s)
+rocket.t_burn       = 0.663;                % Motor burn duration (s)
+rocket.thrust_peak  = 9.73;              % Peak thrust (N)
+rocket.thrust_avg   = 3.48;              % Average thrust (N)
+rocket.total_impulse= 2.32;              % Total impulse (N*s)
 
 % Realistic 2-stage thrust profile (ignition spike -> plateau -> tail-off)
-t_prof = [0.0, 0.19, 0.40, 1.83, 1.96, 2.11];
-T_prof = [0.0, 14.1, 4.35, 0.0, 0.0, 0.0];
+t_prof = [0.0, 2.26e-1, 4.05e-1, 6.32e-1, 6.84e-1, 7.3e-1];
+T_prof = [0.0, 9.73, 2.50, 2.37, 1.15, 0.0];
 rocket.thrust_lut_t = t_prof;
 rocket.thrust_lut_T = T_prof;
 
@@ -201,7 +209,7 @@ electronics.battery.R_internal= 0.045;     % Internal resistance (Ohms) = 45 mOh
 
 %% 5. Guidance, Navigation, and Control (GNC) / PID Controller Parameters
 gnc = struct();
-gnc.target_apogee = 3000.0;   % Target apogee MSL (m)
+gnc.target_apogee = 50.6;   % Target apogee MSL (m)
 
 % Flight State Machine Thresholds
 gnc.burnout_acc_thresh = -5.0; % Acceleration drop (m/s^2) indicating motor burnout
