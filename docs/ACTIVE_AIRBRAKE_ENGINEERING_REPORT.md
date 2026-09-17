@@ -29,8 +29,8 @@ Both a **standalone 6-DOF MATLAB simulation engine** and a **native MATLAB Simul
 ## 2. 3D 6-Degrees-of-Freedom (6-DOF) Dynamics Formulation
 
 ### 2.1 State Vector & Reference Frames
-The vehicle state vector $\mathbf{x} \in \mathbb{R}^{13}$ is defined in the Earth-Centered North-East-Down (NED) frame and Rocket Body frame:
-$\mathbf{x} = \begin{bmatrix} \mathbf{r}_{NED}^T & \mathbf{V}_b^T & \mathbf{q}^T & \boldsymbol{\omega}_b^T \end{bmatrix}^T$
+The vehicle state vector $\mathbf{x} \in \mathbb{R}^{13}$ is defined in the Earth-Centered North-East-Down (NED) frame and Rocket Body frameas follows:
+- $\mathbf{x} = \begin{bmatrix} \mathbf{r}_{NED}^T & \mathbf{V}_b^T & \mathbf{q}^T & \boldsymbol{\omega}_b^T \end{bmatrix}^T$
 - $\mathbf{r}_{NED} = [X_N, Y_E, Z_D]^T$: Position in NED frame. Altitude MSL is $h = -Z_D$.
 - $\mathbf{V}_b = [u, v, w]^T$: Linear velocity in Rocket Body frame (axial $u$, right lateral $v$, normal down $w$).
 - $\mathbf{q} = [q_0, q_1, q_2, q_3]^T$: Unit quaternion representing orientation from NED to Body frame ($\|\mathbf{q}\| = 1$).
