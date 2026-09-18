@@ -4,6 +4,10 @@
 % Models actual flight electronics: Teensy 4.1 MCU, BMP388 Barometer,
 % BMI088 6-DOF IMU, Savox SC-1258TG Servo, Actuonix L16 Linear Actuator,
 % and 2S LiPo power bus.
+% 
+% air-brake Microcontroller: STM32
+% 
+% air-brake servo: 
 %
 % Copyright (c) 2026 Aerospace Systems Laboratory
 
@@ -12,7 +16,7 @@ fprintf('==> Initializing 6-DOF Active Airbrake Simulation Parameters...\n');
 %% 1. Simulation & Environment Settings
 sim_params = struct();
 sim_params.t_start    = 0.0;     % Start time (s)
-sim_params.t_max      = 20;    % Max simulation time (s)
+sim_params.t_max      = 20.0;    % Max simulation time (s)
 sim_params.dt         = 0.002;   % Continuous plant integration step (s) - 500 Hz
 sim_params.dt_fsw     = 0.020;   % Flight software sample time (s) - 50 Hz
 sim_params.g0         = 9.80665; % Standard gravity at sea level (m/s^2)
@@ -128,10 +132,15 @@ airbrakes.design1.link_ratio  = 1.25;      % Mechanical advantage of servo pushr
 % --- DESIGN 2: Radially Outward Sliding Flaps (Variable Sliding Stroke & Speed) ---
 airbrakes.design2 = struct();
 airbrakes.design2.name        = 'Design 2: Radially Outward Sliding Flaps (90 deg constant)';
-airbrakes.design2.flap_width  = 0.038;     % Width along circumference (m) = 38 mm
-airbrakes.design2.max_stroke  = 0.035;     % Max radial extension stroke (m) = 35 mm
-airbrakes.design2.total_area  = airbrakes.num_flaps * ...
-    airbrakes.design2.flap_width * airbrakes.design2.max_stroke; % 0.00532 m^2 (~65% of rocket A_ref)
+% airbrakes.design2.flap_width  = 0.038;     % Width along circumference (m) = 38 mm
+% airbrakes.design2.max_stroke  = 0.035;     % Max radial extension stroke (m) = 35 mm
+% airbrakes.design2.total_area  = airbrakes.num_flaps * ...
+%     airbrakes.design2.flap_width * airbrakes.design2.max_stroke; % 0.00532 m^2 (~65% of rocket A_ref) 1 in^2 max convert it to m^2
+
+airbrakes.single_area = 0.00064516; % 0.00064516 m^2
+
+airbrakes.design2.total_area  = airbrakes.num_flaps * airbrakes.single_area;
+
 airbrakes.design2.CD_plate    = 1.28;      % Drag coefficient of flat plate at 90 deg
 airbrakes.design2.mu_rail     = 0.20;      % Friction coefficient of guide rails under aero normal load
 airbrakes.design2.rail_preload= 2.0;       % Internal seal/rail spring preload per flap (N)

@@ -4,6 +4,10 @@
 % Models actual flight electronics: Teensy 4.1 MCU, BMP388 Barometer,
 % BMI088 6-DOF IMU, Savox SC-1258TG Servo, Actuonix L16 Linear Actuator,
 % and 2S LiPo power bus.
+% 
+% air-brake Microcontroller: STM32
+% 
+% air-brake servo: 
 %
 % Copyright (c) 2026 Aerospace Systems Laboratory
 
@@ -12,7 +16,7 @@ fprintf('==> Initializing 6-DOF Active Airbrake Simulation Parameters...\n');
 %% 1. Simulation & Environment Settings
 sim_params = struct();
 sim_params.t_start    = 0.0;     % Start time (s)
-sim_params.t_max      = 1200.0;    % Max simulation time (s)
+sim_params.t_max      = 20.0;    % Max simulation time (s)
 sim_params.dt         = 0.002;   % Continuous plant integration step (s) - 500 Hz
 sim_params.dt_fsw     = 0.020;   % Flight software sample time (s) - 50 Hz
 sim_params.g0         = 9.80665; % Standard gravity at sea level (m/s^2)
@@ -60,21 +64,29 @@ rocket.x_CP         = 0.30;                % Center of pressure from nose tip (m
 rocket.static_margin_wet = (rocket.x_CP - rocket.x_CG_wet) / rocket.diameter; % ~2.94 calibers
 rocket.static_margin_dry = (rocket.x_CP - rocket.x_CG_dry) / rocket.diameter; % ~4.51 calibers
 
-% Moment coefficients
-rocket.cxx_wet      = 0;                   % Roll moment coeff wet
-rocket.cxx_dry      = 0;                   % Roll moment coeff dry
-rocket.cyy_wet      = 3.34e-4;             % Pitch moment coeff wet
-rocket.cyy_dry      = 1.08e-4;             % Pitch moment coeff dry
-rocket.czz_wet      = -2.38e-4;            % Yaw moment coeff wet
-rocket.czz_dry      = 3.66e-4;             % Yaw moment coeff dry
+% % Moment coefficients
+% rocket.cxx_wet      = 0;                   % Roll moment coeff wet
+% rocket.cxx_dry      = 0;                   % Roll moment coeff dry
+% rocket.cyy_wet      = 3.34e-4;             % Pitch moment coeff wet
+% rocket.cyy_dry      = 1.08e-4;             % Pitch moment coeff dry
+% rocket.czz_wet      = -2.38e-4;            % Yaw moment coeff wet
+% rocket.czz_dry      = 3.66e-4;             % Yaw moment coeff dry
+% 
+% % Moments of Inertia [kg*m^2]
+% rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
+% rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
+% rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
+% rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
+% rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
+% rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
 
 % Moments of Inertia [kg*m^2]
-rocket.Ixx_wet      = rocket.cxx_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Roll inertia wet
-rocket.Ixx_dry      = rocket.cxx_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Roll inertia dry
-rocket.Iyy_wet      = rocket.cyy_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Pitch inertia wet
-rocket.Iyy_dry      = rocket.cyy_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Pitch inertia dry
-rocket.Izz_wet      = rocket.czz_wet * rocket.m_liftoff * (rocket.diameter / 2)^2;           % Yaw inertia wet
-rocket.Izz_dry      = rocket.czz_dry * rocket.m_dry * (rocket.diameter / 2)^2;               % Yaw inertia dry
+rocket.Ixx_wet      = 1e-3;               % Roll inertia wet
+rocket.Ixx_dry      = 9.66e-4;               % Roll inertia dry
+rocket.Iyy_wet      = 1e-3;                % Pitch inertia wet
+rocket.Iyy_dry      = 9.66e-4;                % Pitch inertia dry
+rocket.Izz_wet      = 1e-3;                % Yaw inertia wet
+rocket.Izz_dry      = 9.66e-4;                % Yaw inertia dry
 
 % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
 rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
@@ -120,10 +132,15 @@ airbrakes.design1.link_ratio  = 1.25;      % Mechanical advantage of servo pushr
 % --- DESIGN 2: Radially Outward Sliding Flaps (Variable Sliding Stroke & Speed) ---
 airbrakes.design2 = struct();
 airbrakes.design2.name        = 'Design 2: Radially Outward Sliding Flaps (90 deg constant)';
-airbrakes.design2.flap_width  = 0.038;     % Width along circumference (m) = 38 mm
-airbrakes.design2.max_stroke  = 0.035;     % Max radial extension stroke (m) = 35 mm
-airbrakes.design2.total_area  = airbrakes.num_flaps * ...
-    airbrakes.design2.flap_width * airbrakes.design2.max_stroke; % 0.00532 m^2 (~65% of rocket A_ref)
+% airbrakes.design2.flap_width  = 0.038;     % Width along circumference (m) = 38 mm
+% airbrakes.design2.max_stroke  = 0.035;     % Max radial extension stroke (m) = 35 mm
+% airbrakes.design2.total_area  = airbrakes.num_flaps * ...
+%     airbrakes.design2.flap_width * airbrakes.design2.max_stroke; % 0.00532 m^2 (~65% of rocket A_ref) 1 in^2 max convert it to m^2
+
+airbrakes.single_area = 0.00064516; % 0.00064516 m^2
+
+airbrakes.design2.total_area  = airbrakes.num_flaps * airbrakes.single_area;
+
 airbrakes.design2.CD_plate    = 1.28;      % Drag coefficient of flat plate at 90 deg
 airbrakes.design2.mu_rail     = 0.20;      % Friction coefficient of guide rails under aero normal load
 airbrakes.design2.rail_preload= 2.0;       % Internal seal/rail spring preload per flap (N)
@@ -201,7 +218,7 @@ electronics.battery.R_internal= 0.045;     % Internal resistance (Ohms) = 45 mOh
 
 %% 5. Guidance, Navigation, and Control (GNC) / PID Controller Parameters
 gnc = struct();
-gnc.target_apogee = 3000.0;   % Target apogee MSL (m)
+gnc.target_apogee = 50.6;   % Target apogee MSL (m)
 
 % Flight State Machine Thresholds
 gnc.burnout_acc_thresh = -5.0; % Acceleration drop (m/s^2) indicating motor burnout
