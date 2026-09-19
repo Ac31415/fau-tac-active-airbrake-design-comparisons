@@ -16,7 +16,7 @@ The simulation models:
    - **Power Bus**: 2S 800mAh 45C LiPo battery with internal resistance ($45\,\text{m}\Omega$) predicting dynamic voltage sag under peak actuator loads.
 3. **Dual Mechanism Design & Actuator Trade-Off**:
    - **Design 1 (Downward Hinged Flaps)**: 4 symmetric flaps pivoting from $0^\circ$ (flush) to $90^\circ$ (perpendicular), actuated by a central **Savöx SC-1258TG** high-torque digital coreless titanium-gear servo subject to aerodynamic hinge moments ($M_{hinge}$).
-   - **Design 2 (Radially Outward Sliding Flaps)**: 4 symmetric flaps oriented perpendicular ($90^\circ$) to the flow, translating radially outwards ($0 - 35\,\text{mm}$), actuated by an **Actuonix L16-R** micro linear actuator at variable sliding speeds ($16\,\text{mm/s}$, $32\,\text{mm/s}$, and $45\,\text{mm/s}$) subject to aerodynamic normal loads and guide-rail sliding friction ($F_{friction}$).
+   - **Design 2 (Radially Outward Sliding Flaps)**: 4 symmetric flaps oriented perpendicular ($90^\circ$) to the flow, translating radially outwards with maximum extended area $A_{\text{single\_max}} = 0.00064516\,\text{m}^2$ ($1.0\,\text{in}^2$) per flap, actuated by an **Actuonix L16-R** micro linear actuator at variable sliding speeds ($16\,\text{mm/s}$, $32\,\text{mm/s}$, and $45\,\text{mm/s}$) subject to aerodynamic normal loads and guide-rail sliding friction ($F_{friction}$).
 4. **Guidance, Navigation, and Control (GNC)**:
    - Discrete 1D Vertical Kalman Filter fusing BMP388 baro altitude and BMI088 axial acceleration.
    - Closed-form ballistic energy-balance apogee predictor with altitude density stratification.
@@ -81,14 +81,14 @@ The inertial velocity is $\mathbf{V}_{NED} = \mathbf{C}_{b/e}^T \mathbf{V}_b$.
   $$\tau_{servo,load} = \frac{4 \cdot \tau_{hinge}(\theta)}{\eta_{link}}$$
 
 ### 3.2 Design 2: Radially Outward Sliding Flaps
-- **Geometry**: 4 rectangular plates fixed permanently at $90^\circ$ to the body, extending radially through slots: width $W = 38\,\text{mm}$, max stroke $s_{max} = 35\,\text{mm}$.
-- **Deployment Stroke**: $s \in [0, s_{max}]$.
-- **Projected Area**: Purely linear with extension stroke:
-  $$A_{proj}(s) = 4 \cdot W \cdot s$$
+- **Geometry**: 4 rectangular plates fixed permanently at $90^\circ$ to the body, extending radially through slots. Parameterized purely by the maximum extended area of each individual flap $A_{\text{single\_max}} = 0.00064516\,\text{m}^2$ ($1.0\,\text{in}^2$).
+- **Deployment Fraction**: Normalized extension $u \in [0, 1]$ ($0 - 100\%$).
+- **Projected Area**: Purely linear with deployment fraction:
+  $$A_{proj}(u) = 4 \cdot A_{\text{single\_max}} \cdot u$$
 - **Drag Increment**: Flat plate at $90^\circ$ normal to oncoming flow ($C_{D,plate} = 1.28$):
-  $$\Delta C_D(s) = C_{D,plate} \frac{4 W s}{A_{ref}}$$
-- **Aero Normal Force & Rail Friction**: Because the flap is at $90^\circ$ to the flow, dynamic pressure generates a large aerodynamic drag force normal to the guide rails:
-  $$F_{normal}(s) = q_\infty \cdot C_{D,plate} \cdot (W s)$$
+  $$\Delta C_D(u) = C_{D,plate} \frac{4 \cdot A_{\text{single\_max}} \cdot u}{A_{ref}}$$
+- **Aero Normal Force & Rail Friction**: Because the flap is at $90^\circ$ to the flow, dynamic pressure generates an aerodynamic drag force normal to the guide rails:
+  $$F_{normal}(u) = q_\infty \cdot C_{D,plate} \cdot (A_{\text{single\_max}} \cdot u)$$
   This normal load pushes the flap against its guide bushings/rails with friction coefficient $\mu_{rail} \approx 0.20$ and seal preload $F_{preload} = 2.0\,\text{N}$:
   $$F_{rail,friction} = 4 \cdot (\mu_{rail} F_{normal} + F_{preload})$$
   The linear actuator must generate an axial force $F_{actuator} > F_{rail,friction}$ to extend or retract the flaps!
@@ -174,7 +174,7 @@ All five test scenarios were evaluated using the verified 6-DOF dynamic engine:
 
 ### Simulink Model Verification (`Rocket_Active_Airbrake_6DOF.slx`):
 - **Design 1 (Hinged Flaps)**: Apogee = **$3,038.2\,\text{m}$** (Error: $+38.2\,\text{m}$ / $+1.27\%$). Max angle: $79.2^\circ$.
-- **Design 2 (Sliding Flaps)**: Apogee = **$2,997.8\,\text{m}$** (Error: **$-2.15\,\text{m}$** / **$-0.07\%$**). Max stroke: $17.6\,\text{mm}$.
+- **Design 2 (Sliding Flaps)**: Apogee = **$2,997.8\,\text{m}$** (Error: **$-2.15\,\text{m}$** / **$-0.07\%$**). Max deployment: $50.3\%$ ($A_{proj} = 0.00130\,\text{m}^2$).
 
 ---
 
@@ -182,7 +182,7 @@ All five test scenarios were evaluated using the verified 6-DOF dynamic engine:
 
 1. **Linearity of Control Authority**:
    - **Design 1 (Hinged Flaps)**: Exhibited cubic non-linearity ($\Delta C_D \propto \sin^3(\theta)$). Small opening angles ($< 25^\circ$) generate minimal drag, while high angles ($> 60^\circ$) produce steep drag surges. This non-linearity requires adaptive PID tuning or gain scheduling across flight regimes.
-   - **Design 2 (Sliding Flaps)**: Exhibited strictly linear control authority ($\Delta C_D \propto s$). The linear plant gain makes standard PID control remarkably smooth and predictable, reaching an accuracy of $-2.15\,\text{m}$ (0.07% error).
+   - **Design 2 (Sliding Flaps)**: Exhibited strictly linear control authority ($\Delta C_D \propto u$). The linear plant gain makes standard PID control remarkably smooth and predictable, reaching an accuracy of $-2.15\,\text{m}$ (0.07% error).
 2. **Mechanical Load & Actuator Stress**:
    - **Design 1**: Aerodynamic hinge torque reached $3.84\,\text{N}\cdot\text{m}$. For a single servo, this exceeds standard micro-servos and demands high mechanical linkage leverage ($\eta_{link} \ge 1.25$) or dual servos. Peak current surged to $3.78\,\text{A}$, causing measurable battery bus voltage sag.
    - **Design 2**: While guide-rail friction reached $32.7\,\text{N}$, it remained safely below the Actuonix L16 stall threshold ($50\,\text{N}$). Peak electrical current remained under $0.85\,\text{A}$, reducing electrical bus noise and battery drain by **58%**.

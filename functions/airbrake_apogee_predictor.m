@@ -85,10 +85,19 @@ function dCD = compute_delta_CD(u, design_type, rocket, airbrakes)
             dCD = CD_flap * (A_proj / A_ref);
             
         case 'design2_sliding'
-            % Radially outward sliding flaps: extension s = u * max_stroke
-            % Flaps are always at 90 deg normal to rocket body
-            % Effective projected area = N * W * s (linear with stroke!)
-            A_proj = airbrakes.design2.total_area * u;
+            % Radially outward sliding flaps: projected area is linear with deployment fraction u
+            if isfield(airbrakes.design2, 'total_area')
+                A_total = airbrakes.design2.total_area;
+            elseif isfield(airbrakes.design2, 'single_flap_max_area')
+                A_total = airbrakes.num_flaps * airbrakes.design2.single_flap_max_area;
+            elseif isfield(airbrakes.design2, 'single_area')
+                A_total = airbrakes.num_flaps * airbrakes.design2.single_area;
+            elseif isfield(airbrakes, 'single_area')
+                A_total = airbrakes.num_flaps * airbrakes.single_area;
+            else
+                A_total = airbrakes.num_flaps * 0.00064516;
+            end
+            A_proj = A_total * u;
             CD_plate = airbrakes.design2.CD_plate;
             dCD = CD_plate * (A_proj / A_ref);
             

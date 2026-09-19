@@ -20,8 +20,9 @@ A complete MATLAB & Simulink aerospace simulation suite modeling **Active Airbra
      - Aerodynamic hinge moment $\tau_{hinge}(\theta)$ calculated at the flap center of pressure.
      - Actuated by **Savöx SC-1258TG** High-Torque Digital Titanium-Gear Coreless Servo with 2nd-order electromechanical dynamics, slew-rate limit ($750^\circ/\text{s}$), and load-stall modeling.
    - **Design 2: Radially Outward Sliding Flaps ($90^\circ$ Constant Orientation)**:
-     - Variable stroke $s \in [0, 35\,\text{mm}]$ perpendicular to oncoming airflow.
-     - Linear drag authority $\Delta C_D(s) \propto s$.
+     - Parameterized purely by the maximum extended area of each individual flap ($A_{\text{single\_max}} = 0.00064516\,\text{m}^2 = 1.0\,\text{in}^2$). Flap width and stroke dimensions are not required.
+     - Normalized deployment fraction $u \in [0, 1]$ ($0 - 100\%$).
+     - Strictly linear drag authority $\Delta C_D(u) \propto u$.
      - Normal aerodynamic pressure generates sliding friction on guide rails: $F_{friction} = \mu \cdot F_{normal} + F_{preload}$.
      - Actuated by **Actuonix L16-R** Micro Linear Actuator with force-speed derating and tests across variable sliding speeds ($16\,\text{mm/s}$, $32\,\text{mm/s}$, and $45\,\text{mm/s}$).
 

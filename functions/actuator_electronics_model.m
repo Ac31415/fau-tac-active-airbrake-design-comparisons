@@ -118,7 +118,14 @@ switch lower(design_type)
         s_dot = state(2); % Extension velocity in m/s
         
         lin_cfg = electronics.linear_actuator;
-        s_max = airbrakes.design2.max_stroke; % 0.035 m
+        
+        if isfield(airbrakes.design2, 'max_stroke') && ~isempty(airbrakes.design2.max_stroke)
+            s_max = airbrakes.design2.max_stroke;
+        elseif isfield(lin_cfg, 'stroke_m') && ~isempty(lin_cfg.stroke_m)
+            s_max = lin_cfg.stroke_m;
+        else
+            s_max = 0.035; % Nominal actuator stroke (35 mm)
+        end
         s_target = cmd_frac * s_max;
         
         pos_error = s_target - s;
@@ -169,8 +176,23 @@ switch lower(design_type)
         i_total = i_avionics_base + i_actuator;
         v_bus = electronics.battery.v_full - i_total * electronics.battery.R_internal;
         
-        elec_diag.pos_actual     = s * 1000.0; % mm
-        elec_diag.pos_target     = s_target * 1000.0; % mm
+        if isfield(airbrakes.design2, 'single_flap_max_area')
+            A_single_max = airbrakes.design2.single_flap_max_area;
+        elseif isfield(airbrakes.design2, 'single_area')
+            A_single_max = airbrakes.design2.single_area;
+        elseif isfield(airbrakes, 'single_area')
+            A_single_max = airbrakes.single_area;
+        elseif isfield(airbrakes.design2, 'total_area')
+            A_single_max = airbrakes.design2.total_area / airbrakes.num_flaps;
+        else
+            A_single_max = 0.00064516;
+        end
+        u_fraction = max(0.0, min(1.0, s / s_max));
+        
+        elec_diag.pos_actual     = u_fraction * 100.0; % % deployment
+        elec_diag.pos_target     = cmd_frac * 100.0; % %
+        elec_diag.area_actual    = u_fraction * A_single_max; % m^2
+        elec_diag.stroke_actual  = s * 1000.0; % mm
         elec_diag.speed_actual   = s_dot * 1000.0; % mm/s
         elec_diag.load_reaction  = F_load; % N
         elec_diag.load_capacity  = F_stall_avail; % N

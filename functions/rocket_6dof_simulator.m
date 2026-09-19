@@ -228,8 +228,15 @@ for k = 1:N_steps
         act_state(1) = max(0.0, min(pi/2, act_state(1)));
         brake_state_physical = act_state(1); % Angle in radians
     else
-        act_state(1) = max(0.0, min(airbrakes.design2.max_stroke, act_state(1)));
-        brake_state_physical = act_state(1); % Stroke in meters
+        if isfield(airbrakes.design2, 'max_stroke') && ~isempty(airbrakes.design2.max_stroke)
+            s_max = airbrakes.design2.max_stroke;
+        elseif isfield(electronics.linear_actuator, 'stroke_m') && ~isempty(electronics.linear_actuator.stroke_m)
+            s_max = electronics.linear_actuator.stroke_m;
+        else
+            s_max = 0.035; % Nominal reference stroke
+        end
+        act_state(1) = max(0.0, min(s_max, act_state(1)));
+        brake_state_physical = act_state(1) / s_max; % Pass normalized fraction u in [0, 1]
     end
     
     % 8. Aerodynamics Forces and Moments

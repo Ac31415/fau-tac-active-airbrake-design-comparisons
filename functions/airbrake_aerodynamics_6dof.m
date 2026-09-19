@@ -91,20 +91,41 @@ switch lower(design_type)
         tau_hinge_total = (airbrakes.num_flaps * tau_hinge_single) / airbrakes.design1.link_ratio;
         
     case 'design2_sliding'
-        % brake_state is extension stroke s (m) in [0, max_stroke]
-        s_m = max(0.0, min(airbrakes.design2.max_stroke, brake_state));
-        u_frac = s_m / airbrakes.design2.max_stroke;
+        % Design 2: Radially outward sliding flaps
+        % Only the max extended area of each sliding flap is needed!
+        if isfield(airbrakes.design2, 'single_flap_max_area')
+            A_single_max = airbrakes.design2.single_flap_max_area;
+        elseif isfield(airbrakes.design2, 'single_area')
+            A_single_max = airbrakes.design2.single_area;
+        elseif isfield(airbrakes, 'single_area')
+            A_single_max = airbrakes.single_area;
+        elseif isfield(airbrakes.design2, 'total_area')
+            A_single_max = airbrakes.design2.total_area / airbrakes.num_flaps;
+        elseif isfield(airbrakes.design2, 'flap_width') && isfield(airbrakes.design2, 'max_stroke')
+            A_single_max = airbrakes.design2.flap_width * airbrakes.design2.max_stroke;
+        else
+            A_single_max = 0.00064516; % Default 1.0 in^2 = 0.00064516 m^2
+        end
         
-        % Projected area: linear with stroke extension!
-        A_proj = airbrakes.design2.total_area * u_frac;
+        % Normalize deployment fraction u_frac in [0, 1]
+        if brake_state > 1.0
+            u_frac = min(1.0, brake_state / 100.0);
+        elseif isfield(airbrakes.design2, 'max_stroke') && airbrakes.design2.max_stroke > 0 && brake_state > 1.0
+            u_frac = max(0.0, min(1.0, brake_state / airbrakes.design2.max_stroke));
+        else
+            u_frac = max(0.0, min(1.0, brake_state));
+        end
+        
+        % Projected area of each flap and all flaps combined
+        A_single_extended = A_single_max * u_frac;
+        A_proj = airbrakes.num_flaps * A_single_extended;
         
         % Flat plate normal to flow (CD = 1.28)
         CD_plate = airbrakes.design2.CD_plate;
         dCD_brakes = CD_plate * (A_proj / A_ref);
         
-        % Mechanical rail friction model:
-        % Aerodynamic drag exerts a strong lateral shear force against guide rails
-        A_single_extended = airbrakes.design2.flap_width * s_m;
+        % Mechanical guide-rail friction model:
+        % Aerodynamic drag exerts a normal force against guide rails
         F_normal_per_flap = q_inf * CD_plate * A_single_extended;
         
         % Friction on guide rails opposing actuator linear motion

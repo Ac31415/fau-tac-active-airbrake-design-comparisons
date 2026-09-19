@@ -148,16 +148,17 @@ airbrakes.design1.CD_flap_90  = 1.25;      % Flat plate drag coefficient normal 
 airbrakes.design1.r_cp_flap   = 0.028;     % Distance from hinge to flap CP (m)
 airbrakes.design1.link_ratio  = 1.25;      % Mechanical advantage of servo pushrod linkage
 
-% --- DESIGN 2: Radially Outward Sliding Flaps (Variable Sliding Stroke & Speed) ---
+% --- DESIGN 2: Radially Outward Sliding Flaps (Variable Sliding Speed) ---
+% Only the max extended area of each sliding flap is needed (0.00064516 m^2 = 1.0 in^2)
 airbrakes.design2 = struct();
-airbrakes.design2.name        = 'Design 2: Radially Outward Sliding Flaps (90 deg constant)';
-airbrakes.design2.flap_width  = 0.038;     % Width along circumference (m) = 38 mm
-airbrakes.design2.max_stroke  = 0.035;     % Max radial extension stroke (m) = 35 mm
-airbrakes.design2.total_area  = airbrakes.num_flaps * ...
-    airbrakes.design2.flap_width * airbrakes.design2.max_stroke; % 0.00532 m^2 (~65% of rocket A_ref) 1 in^2 max convert it to m^2
-airbrakes.design2.CD_plate    = 1.28;      % Drag coefficient of flat plate at 90 deg
-airbrakes.design2.mu_rail     = 0.20;      % Friction coefficient of guide rails under aero normal load
-airbrakes.design2.rail_preload= 2.0;       % Internal seal/rail spring preload per flap (N)
+airbrakes.design2.name                 = 'Design 2: Radially Outward Sliding Flaps (90 deg constant)';
+airbrakes.design2.single_flap_max_area = 0.00064516; % Max extended area per flap (m^2) = 1.0 in^2
+airbrakes.design2.single_area          = airbrakes.design2.single_flap_max_area;
+airbrakes.single_area                  = airbrakes.design2.single_flap_max_area;
+airbrakes.design2.total_area           = airbrakes.num_flaps * airbrakes.design2.single_flap_max_area;
+airbrakes.design2.CD_plate             = 1.28;       % Drag coefficient of flat plate at 90 deg
+airbrakes.design2.mu_rail              = 0.20;       % Friction coefficient of guide rails under aero normal load
+airbrakes.design2.rail_preload         = 2.0;        % Internal seal/rail spring preload per flap (N)
 
 %% 4. Actual Existing Electronics & Actuator Hardware Specifications
 

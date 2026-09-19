@@ -1,0 +1,7 @@
+# MATLAB / Simulink temporary cache and auto-save files
+slprj/
+*.asv
+*.autosave
+*.slxc
+*.m~
+.DS_Store

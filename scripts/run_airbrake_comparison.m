@@ -197,21 +197,21 @@ legend('Location', 'northeast', 'FontSize', 9);
 xlim([0, 25]); ylim([0, 95]);
 
 subplot(2, 2, 2); hold on; grid on; box on;
-plot(sim_d2_nom.t, sim_d2_nom.act_pos, 'Color', c_d2, 'DisplayName', 'Actual Stroke');
-plot(sim_d2_nom.t, sim_d2_nom.act_cmd * 35.0, 'Color', [0.0, 0.45, 0.74, 0.4], 'LineStyle', ':', 'LineWidth', 2.0, 'DisplayName', 'Command Stroke');
-xlabel('Time (s)'); ylabel('Extension Stroke (mm)');
-title('Design 2: Radial Sliding Stroke (0 to 35 mm)', 'FontWeight', 'bold');
+plot(sim_d2_nom.t, sim_d2_nom.act_pos, 'Color', c_d2, 'DisplayName', 'Actual Deployment');
+plot(sim_d2_nom.t, sim_d2_nom.act_cmd * 100.0, 'Color', [0.0, 0.45, 0.74, 0.4], 'LineStyle', ':', 'LineWidth', 2.0, 'DisplayName', 'Command Deployment');
+xlabel('Time (s)'); ylabel('Deployment (%)');
+title('Design 2: Radial Sliding Deployment (0 to 100%)', 'FontWeight', 'bold');
 legend('Location', 'northeast', 'FontSize', 9);
-xlim([0, 25]); ylim([0, 38]);
+xlim([0, 25]); ylim([0, 105]);
 
 subplot(2, 2, 3); hold on; grid on; box on;
 plot(sim_d2_fast.t, sim_d2_fast.act_pos, 'Color', c_fast, 'DisplayName', 'Fast (45 mm/s)');
 plot(sim_d2_nom.t, sim_d2_nom.act_pos, 'Color', c_d2, 'DisplayName', 'Nominal (32 mm/s)');
 plot(sim_d2_slow.t, sim_d2_slow.act_pos, 'Color', c_slow, 'DisplayName', 'Slow (16 mm/s)');
-xlabel('Time (s)'); ylabel('Extension Stroke (mm)');
+xlabel('Time (s)'); ylabel('Deployment (%)');
 title('Design 2: Effect of Actuator Sliding Speed', 'FontWeight', 'bold');
 legend('Location', 'northeast', 'FontSize', 9);
-xlim([3, 15]); ylim([0, 30]);
+xlim([3, 15]); ylim([0, 105]);
 
 subplot(2, 2, 4); hold on; grid on; box on;
 plot(sim_base.t, sim_base.CD_total, 'Color', c_base, 'LineStyle', '--', 'DisplayName', 'Baseline Clean');
