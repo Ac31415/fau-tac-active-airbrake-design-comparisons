@@ -102,7 +102,7 @@ rocket.Izz_dry      = 2.95;                % Yaw inertia dry
 
 % Propulsion System: High-Power Solid Rocket Motor (e.g. Cesaroni / Aerotech L-Class)
 rocket.motor_name   = 'CTI L1050 / Aerotech L1150 High-Impulse';
-rocket.t_burn       = 3.85;                % Motor burn duration (s)
+rocket.t_burn       = 3.88;                % Motor burn duration (s)
 rocket.thrust_peak  = 3710.9;              % Peak thrust (N)
 rocket.thrust_avg   = 2500.0;              % Average thrust (N)
 rocket.total_impulse= 9671.0;              % Total impulse (N*s)
@@ -126,7 +126,7 @@ rocket.Cnr          = -26.0;               % Yaw damping coefficient (1/rad)
 %% 3. Airbrake Mechanism Designs (Comparison Targets)
 % Both designs are positioned near the CG/midbody (x_brakes = 1.30 m from nose tip)
 airbrakes = struct();
-airbrakes.x_mount    = 1.30;               % Axial location of airbrake unit (m)
+airbrakes.x_mount    = 2.17;               % Axial location of airbrake unit (m)
 airbrakes.num_flaps  = 4;                  % 4 flaps arranged symmetrically at 90-deg intervals
 
 % --- DESIGN 1: Downward-Opening Pivoting Flaps (Variable Angle 0 -> 90 deg) ---
@@ -142,10 +142,10 @@ airbrakes.design1.r_cp_flap   = 0.028;     % Distance from hinge to flap CP (m)
 airbrakes.design1.link_ratio  = 1.25;      % Mechanical advantage of servo pushrod linkage
 
 % --- DESIGN 2: Radially Outward Sliding Flaps (Variable Sliding Speed) ---
-% Only the max extended area of each sliding flap is needed (0.00064516 m^2 = 1.0 in^2)
+% Only the max extended area of each sliding flap is needed (0.002303221 m^2 = 3.57 in^2)
 airbrakes.design2 = struct();
 airbrakes.design2.name                 = 'Design 2: Radially Outward Sliding Flaps (90 deg constant)';
-airbrakes.design2.single_flap_max_area = 0.00064516; % Max extended area per flap (m^2) = 1.0 in^2
+airbrakes.design2.single_flap_max_area = 0.002303221; % Max extended area per flap (m^2) = 3.57 in^2
 airbrakes.design2.single_area          = airbrakes.design2.single_flap_max_area;
 airbrakes.single_area                  = airbrakes.design2.single_flap_max_area;
 airbrakes.design2.total_area           = airbrakes.num_flaps * airbrakes.design2.single_flap_max_area;
